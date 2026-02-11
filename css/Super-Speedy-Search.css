@@ -1,12 +1,11 @@
 .super-speedy-search-form {
   max-width: 700px !important;
   margin: 0 auto !important;
-  border: 0 !important;
+  border-radius: 0 !important;
 }
 
 .super-speedy-searchform {
   background: #fff !important;
-  border-radius: 24px !important;
   overflow: hidden !important;
   border: 1px solid #fff !important;
 }
@@ -34,11 +33,6 @@
   background: none !important;
 }
 
-.sss_search_button {
-  background: #f26a1b !important;
-  height: 48px !important;
-}
-
 .wpi-sss-icon-search,
 .wpi-sss-icon-clear {
   width: 20px !important;
@@ -48,4 +42,15 @@
 
 .sssresults .sss_suggestions_container .sss_list_header {
   display: none !important;
+}
+
+.super-speedy-search-form .sssresults .sss_items .sss_flash span.onsale {
+  min-height: fit-content !important;
+  width: fit-content !important;
+  font-size: 0.65rem !important;
+}
+
+.sss_see_all a {
+  display: flex !important;
+  font-size: 0.9rem !important;
 }
