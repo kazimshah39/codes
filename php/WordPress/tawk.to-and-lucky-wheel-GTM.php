@@ -1,18 +1,16 @@
 <?php
-
 add_action('wp_footer', function () {
 ?>
 <script>
-    // Initialize GTM dataLayer
+    // Initialize the existing GTM dataLayer without overwriting it
     window.dataLayer = window.dataLayer || [];
 
-    // Initialize Tawk API
-    window.Tawk_API = window.Tawk_API || {};
-
     /**
-     * Tawk.to chat started
+     * Tawk.to Chat Started
      */
-    window.Tawk_API.onChatStarted = function () {
+    var Tawk_API = window.Tawk_API = window.Tawk_API || {};
+
+    Tawk_API.onChatStarted = function () {
 
         // Fire Google event through GTM
         window.dataLayer.push({
@@ -26,15 +24,13 @@ add_action('wp_footer', function () {
     };
 
     /**
-     * Lucky Wheel successful submission
+     * Lucky Wheel
      */
     jQuery(function ($) {
+        $.ajaxPrefilter(function (options) {
 
-        $(document).ajaxSuccess(function (event, xhr, settings) {
+            var requestData = options.data || '';
 
-            var requestData = settings.data || '';
-
-            // Check whether this is the Lucky Wheel AJAX request
             var isLuckyWheelRequest =
                 (
                     typeof requestData === 'string' &&
@@ -45,32 +41,31 @@ add_action('wp_footer', function () {
                     requestData.action === 'wof-email-optin'
                 );
 
-            if (!isLuckyWheelRequest) {
-                return;
-            }
+            if (isLuckyWheelRequest) {
 
-            var response = xhr.responseJSON;
+                // Preserve the plugin's existing success callback
+                var originalSuccess = options.success;
 
-            // Parse the response if it was not automatically parsed
-            if (!response && xhr.responseText) {
-                try {
-                    response = JSON.parse(xhr.responseText);
-                } catch (error) {
-                    return;
-                }
-            }
+                options.success = function (response) {
 
-            if (response && response.success === true) {
+                    // Run the plugin's original success callback first
+                    if (typeof originalSuccess === 'function') {
+                        originalSuccess.apply(this, arguments);
+                    }
 
-                // Fire Google event through GTM
-                window.dataLayer.push({
-                    event: 'lucky_wheel_submit'
-                });
+                    if (response && response.success === true) {
 
-                // Fire Meta/Facebook event directly
-                if (typeof fbq === 'function') {
-                    fbq('trackCustom', 'lucky_wheel_submit');
-                }
+                        // Fire Google event through GTM
+                        window.dataLayer.push({
+                            event: 'lucky_wheel_submit'
+                        });
+
+                        // Fire Meta/Facebook event directly
+                        if (typeof fbq === 'function') {
+                            fbq('trackCustom', 'lucky_wheel_submit');
+                        }
+                    }
+                };
             }
         });
     });
