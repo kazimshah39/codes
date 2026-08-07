@@ -1,74 +1,42 @@
 <?php
+
 add_action('wp_footer', function () {
 ?>
-<script>
-    // Initialize the existing GTM dataLayer without overwriting it
-    window.dataLayer = window.dataLayer || [];
+    <script>
+        (function($) {
+            'use strict';
 
-    /**
-     * Tawk.to Chat Started
-     */
-    var Tawk_API = window.Tawk_API = window.Tawk_API || {};
+            window.dataLayer = window.dataLayer || [];
+            window.Tawk_API = window.Tawk_API || {};
 
-    Tawk_API.onChatStarted = function () {
+            // Tawk.to Chat Started
+            window.Tawk_API.onChatStarted = function() {
+                window.dataLayer.push({
+                    event: 'tawk_to_chat_started'
+                });
 
-        // Fire Google event through GTM
-        window.dataLayer.push({
-            event: 'tawk_to_chat_started'
-        });
+                if (typeof window.fbq === 'function') {
+                    window.fbq('trackCustom', 'tawk_to_chat_started');
+                }
+            };
 
-        // Fire Meta/Facebook event directly
-        if (typeof fbq === 'function') {
-            fbq('trackCustom', 'tawk_to_chat_started');
-        }
-    };
+            // Lucky Wheel
+            $(document).on('wof:play', function(event, data) {
+                window.dataLayer.push({
+                    event: 'lucky_wheel_submit',
+                    wheel_id: data.wheel || null,
+                    is_winner: Boolean(data.winning),
+                    segment_id: data.segment || null,
+                    segment_text: data.segment_text || '',
+                    prize: data.segment_prize || ''
+                });
 
-    /**
-     * Lucky Wheel
-     */
-    jQuery(function ($) {
-        $.ajaxPrefilter(function (options) {
+                if (typeof window.fbq === 'function') {
+                    window.fbq('trackCustom', 'lucky_wheel_submit');
+                }
+            });
 
-            var requestData = options.data || '';
-
-            var isLuckyWheelRequest =
-                (
-                    typeof requestData === 'string' &&
-                    requestData.indexOf('action=wof-email-optin') !== -1
-                ) ||
-                (
-                    typeof requestData === 'object' &&
-                    requestData.action === 'wof-email-optin'
-                );
-
-            if (isLuckyWheelRequest) {
-
-                // Preserve the plugin's existing success callback
-                var originalSuccess = options.success;
-
-                options.success = function (response) {
-
-                    // Run the plugin's original success callback first
-                    if (typeof originalSuccess === 'function') {
-                        originalSuccess.apply(this, arguments);
-                    }
-
-                    if (response && response.success === true) {
-
-                        // Fire Google event through GTM
-                        window.dataLayer.push({
-                            event: 'lucky_wheel_submit'
-                        });
-
-                        // Fire Meta/Facebook event directly
-                        if (typeof fbq === 'function') {
-                            fbq('trackCustom', 'lucky_wheel_submit');
-                        }
-                    }
-                };
-            }
-        });
-    });
-</script>
+        })(jQuery);
+    </script>
 <?php
 }, 100);
