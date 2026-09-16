@@ -12,10 +12,7 @@ add_action('wp_footer', function () {
                 // Tawk.to: Track Chat Started (First Visitor Message)
                 // ----------------------------------------------------
                 var isChatStarted = false;
-
-                // Neutralize proactive greetings/triggers from falsely firing chat started
-                window.Tawk_API.onChatStarted = function() {};
-
+                
                 // Fire event only when visitor actually sends a message
                 window.Tawk_API.onChatMessageVisitor = function() {
                     if (isChatStarted) return;
